@@ -13,10 +13,6 @@ const TIPOS_ENTRADA = [
 
 const TIPOS_SALIDA = ["venta", "venta_parcial"];
 
-/**
- * Recalcula cantidad, coste medio, valor y profit de un activo
- * a partir de TODAS sus operaciones, usando precio medio ponderado.
- */
 export async function recalcularActivo(activoId: string) {
   const { data: operaciones } = await supabaseAdmin
     .from("operaciones")
@@ -68,9 +64,6 @@ export async function recalcularActivo(activoId: string) {
   });
 }
 
-/**
- * Recalcula el snapshot del día de hoy sumando todos los activos.
- */
 export async function recalcularSnapshotDelDia() {
   const { data: estados } = await supabaseAdmin
     .from("activos_estado_actual")
@@ -97,12 +90,12 @@ export async function recalcularSnapshotDelDia() {
 
   const { data: aportes } = await supabaseAdmin
     .from("operaciones")
-    .select("valor_bruto")
+    .select("cantidad, precio_unitario")
     .eq("tipo", "transferencia_fiat")
     .is("deleted_at", null);
 
   const capitalAportadoAcumulado = (aportes ?? []).reduce(
-    (acc, o) => acc + Number(o.valor_bruto ?? 0),
+    (acc, o) => acc + Number(o.cantidad ?? 0) * Number(o.precio_unitario ?? 1),
     0
   );
 
