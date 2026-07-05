@@ -2,7 +2,7 @@
 
 import { supabaseAdmin } from "@/lib/supabase";
 import { revalidatePath } from "next/cache";
-import { recalcularActivo, recalcularSnapshotDelDia } from "@/lib/calculos";
+import { recalcularActivo, recalcularSnapshotDelDia, refrescarTodosPrecios } from "@/lib/calculos";
 
 export async function crearActivo(formData: FormData) {
   const nombre = formData.get("nombre") as string;
@@ -13,6 +13,7 @@ export async function crearActivo(formData: FormData) {
     ? Number(formData.get("peso_objetivo"))
     : null;
   const tesis = (formData.get("tesis") as string) || null;
+  const coingecko_id = (formData.get("coingecko_id") as string) || null;
 
   const { error } = await supabaseAdmin.from("activos").insert({
     nombre,
@@ -21,6 +22,7 @@ export async function crearActivo(formData: FormData) {
     moneda_principal,
     peso_objetivo,
     tesis,
+    coingecko_id,
     fuente_precio: categoria === "crypto" ? "coingecko" : "manual",
   });
 
@@ -118,4 +120,10 @@ export async function eliminarOperacion(formData: FormData) {
 
   revalidatePath("/operaciones");
   revalidatePath("/");
+}
+
+export async function actualizarPreciosManual() {
+  await refrescarTodosPrecios();
+  revalidatePath("/");
+  revalidatePath("/activos");
 }
