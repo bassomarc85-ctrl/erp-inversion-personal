@@ -1,4 +1,5 @@
 import { supabaseAdmin } from "@/lib/supabase";
+import { logout } from "@/app/login/actions";
 import Link from "next/link";
 
 async function getResumen() {
@@ -63,6 +64,11 @@ export default async function DashboardPage() {
         </nav>
         <div className="flex-1" />
         <p className="text-xs text-muted font-mono">Europe/Paris · EUR</p>
+        <form action={logout}>
+          <button type="submit" className="text-xs text-muted hover:text-loss ml-4">
+            Cerrar sesión
+          </button>
+        </form>
       </header>
 
       <div className="px-8 py-8 grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8">
