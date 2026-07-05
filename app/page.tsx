@@ -1,6 +1,7 @@
 import { supabaseAdmin } from "@/lib/supabase";
 import { logout } from "@/app/login/actions";
 import Link from "next/link";
+import HistoricoChart from "./HistoricoChart";
 
 async function getResumen() {
   const { data: snapshots } = await supabaseAdmin
@@ -13,9 +14,16 @@ async function getResumen() {
     .from("operaciones")
     .select("*", { count: "exact", head: true });
 
+  const { data: historico } = await supabaseAdmin
+    .from("portfolio_snapshots")
+    .select("fecha, valor_total_cartera, capital_aportado_acumulado, fiat_disponible")
+    .order("fecha", { ascending: true })
+    .limit(90);
+
   return {
     ultimoSnapshot: snapshots?.[0] ?? null,
     numOperaciones: numOperaciones ?? 0,
+    historico: historico ?? [],
   };
 }
 
@@ -43,7 +51,7 @@ function Cifra({
 }
 
 export default async function DashboardPage() {
-  const { ultimoSnapshot, numOperaciones } = await getResumen();
+  const { ultimoSnapshot, numOperaciones, historico } = await getResumen();
   const sinDatos = numOperaciones === 0;
 
   return (
@@ -98,9 +106,7 @@ export default async function DashboardPage() {
             <h2 className="font-display text-sm uppercase tracking-wide text-muted mb-4">
               Histórico de cartera
             </h2>
-            <div className="h-48 flex items-center justify-center text-muted text-sm border border-dashed border-border rounded">
-              El gráfico aparecerá aquí en cuanto existan snapshots diarios.
-            </div>
+            <HistoricoChart datos={historico} />
           </div>
         </section>
 
