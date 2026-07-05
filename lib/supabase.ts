@@ -1,32 +1,15 @@
-import type { Metadata } from "next";
-import { Space_Grotesk, Inter, IBM_Plex_Mono } from "next/font/google";
-import "./globals.css";
+import { createClient } from "@supabase/supabase-js";
 
-const display = Space_Grotesk({
-  subsets: ["latin"],
-  weight: ["500", "700"],
-  variable: "--font-display",
-});
-const body = Inter({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  variable: "--font-body",
-});
-const mono = IBM_Plex_Mono({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  variable: "--font-mono",
-});
+// Cliente para uso en el navegador (solo lectura, respeta RLS con la anon key)
+export const supabaseBrowser = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
-export const metadata: Metadata = {
-  title: "Cartera — ERP Inversión Personal",
-  description: "Gestión patrimonial personal: DCA, riesgo, liquidez y fiscalidad.",
-};
-
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="es" className={`${display.variable} ${body.variable} ${mono.variable}`}>
-      <body className="bg-base text-ink font-body antialiased">{children}</body>
-    </html>
-  );
-}
+// Cliente para uso EXCLUSIVO en servidor (jobs, snapshot diario, webhooks).
+// Nunca importar este archivo desde un componente de cliente ("use client").
+export const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  { auth: { persistSession: false } }
+);
