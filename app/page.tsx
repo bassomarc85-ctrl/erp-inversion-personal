@@ -1,4 +1,5 @@
 import { supabaseAdmin } from "@/lib/supabase";
+import Link from "next/link";
 
 async function getResumen() {
   const { data: snapshots } = await supabaseAdmin
@@ -52,6 +53,15 @@ export default async function DashboardPage() {
           <h1 className="font-display text-2xl font-medium">Cartera</h1>
         </div>
         <div className="w-px h-10 bg-border" />
+        <nav className="flex gap-4 text-sm">
+          <Link href="/activos" className="text-muted hover:text-ink">
+            Activos
+          </Link>
+          <Link href="/operaciones" className="text-muted hover:text-ink">
+            Operaciones
+          </Link>
+        </nav>
+        <div className="flex-1" />
         <p className="text-xs text-muted font-mono">Europe/Paris · EUR</p>
       </header>
 
