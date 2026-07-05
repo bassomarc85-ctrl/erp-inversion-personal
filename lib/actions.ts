@@ -2,6 +2,7 @@
 
 import { supabaseAdmin } from "@/lib/supabase";
 import { revalidatePath } from "next/cache";
+import { recalcularActivo, recalcularSnapshotDelDia } from "@/lib/calculos";
 
 export async function crearActivo(formData: FormData) {
   const nombre = formData.get("nombre") as string;
@@ -91,6 +92,9 @@ export async function crearOperacion(formData: FormData) {
   if (error) {
     throw new Error(`No se pudo crear la operación: ${error.message}`);
   }
+
+  await recalcularActivo(activo_id);
+  await recalcularSnapshotDelDia();
 
   revalidatePath("/operaciones");
   revalidatePath("/");
