@@ -99,3 +99,23 @@ export async function crearOperacion(formData: FormData) {
   revalidatePath("/operaciones");
   revalidatePath("/");
 }
+
+export async function eliminarOperacion(formData: FormData) {
+  const id = formData.get("id") as string;
+  const activo_id = formData.get("activo_id") as string;
+
+  const { error } = await supabaseAdmin
+    .from("operaciones")
+    .update({ deleted_at: new Date().toISOString() })
+    .eq("id", id);
+
+  if (error) {
+    throw new Error(`No se pudo eliminar la operación: ${error.message}`);
+  }
+
+  await recalcularActivo(activo_id);
+  await recalcularSnapshotDelDia();
+
+  revalidatePath("/operaciones");
+  revalidatePath("/");
+}
