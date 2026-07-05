@@ -5,7 +5,9 @@ import Link from "next/link";
 async function getActivos() {
   const { data } = await supabaseAdmin
     .from("activos")
-    .select("id, nombre, ticker, categoria, moneda_principal, peso_objetivo")
+    .select(
+      "id, nombre, ticker, categoria, moneda_principal, peso_objetivo, activos_estado_actual(precio_actual, valor_actual)"
+    )
     .is("deleted_at", null)
     .order("created_at", { ascending: false });
   return data ?? [];
@@ -83,6 +85,16 @@ export default async function ActivosPage() {
               />
             </div>
             <div>
+              <label className="text-xs text-muted block mb-1">
+                CoinGecko ID (solo crypto, para precio automático)
+              </label>
+              <input
+                name="coingecko_id"
+                placeholder="bitcoin, ethereum..."
+                className="w-full bg-surfacealt border border-border rounded px-3 py-2 text-sm"
+              />
+            </div>
+            <div>
               <label className="text-xs text-muted block mb-1">Tesis de inversión</label>
               <textarea
                 name="tesis"
@@ -114,16 +126,22 @@ export default async function ActivosPage() {
                   <th className="pb-2">Ticker</th>
                   <th className="pb-2">Categoría</th>
                   <th className="pb-2">Moneda</th>
+                  <th className="pb-2 text-right">Precio actual</th>
                   <th className="pb-2 text-right">Peso objetivo</th>
                 </tr>
               </thead>
               <tbody className="font-mono">
-                {activos.map((a) => (
+                {activos.map((a: any) => (
                   <tr key={a.id} className="border-b border-border/50">
                     <td className="py-2">{a.nombre}</td>
                     <td className="py-2">{a.ticker}</td>
                     <td className="py-2">{a.categoria}</td>
                     <td className="py-2">{a.moneda_principal}</td>
+                    <td className="py-2 text-right">
+                      {a.activos_estado_actual?.[0]?.precio_actual
+                        ? `€${a.activos_estado_actual[0].precio_actual}`
+                        : "—"}
+                    </td>
                     <td className="py-2 text-right">
                       {a.peso_objetivo ? `${a.peso_objetivo}%` : "—"}
                     </td>
