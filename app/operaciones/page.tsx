@@ -1,5 +1,5 @@
 import { supabaseAdmin } from "@/lib/supabase";
-import { crearOperacion } from "@/lib/actions";
+import { crearOperacion, eliminarOperacion } from "@/lib/actions";
 import Link from "next/link";
 
 async function getDatos() {
@@ -11,7 +11,7 @@ async function getDatos() {
 
   const { data: operaciones } = await supabaseAdmin
     .from("operaciones")
-    .select("id, fecha_hora, tipo, cantidad, precio_unitario, moneda, activos(nombre, ticker)")
+    .select("id, activo_id, fecha_hora, tipo, cantidad, precio_unitario, moneda, activos(nombre, ticker)")
     .is("deleted_at", null)
     .order("fecha_hora", { ascending: false })
     .limit(20);
@@ -189,6 +189,7 @@ export default async function OperacionesPage() {
                   <th className="pb-2">Tipo</th>
                   <th className="pb-2 text-right">Cantidad</th>
                   <th className="pb-2 text-right">Precio</th>
+                  <th className="pb-2 text-right"></th>
                 </tr>
               </thead>
               <tbody className="font-mono">
@@ -202,6 +203,18 @@ export default async function OperacionesPage() {
                     <td className="py-2 text-right">{o.cantidad}</td>
                     <td className="py-2 text-right">
                       {o.precio_unitario ? `${o.moneda} ${o.precio_unitario}` : "—"}
+                    </td>
+                    <td className="py-2 text-right">
+                      <form action={eliminarOperacion}>
+                        <input type="hidden" name="id" value={o.id} />
+                        <input type="hidden" name="activo_id" value={o.activo_id} />
+                        <button
+                          type="submit"
+                          className="text-xs text-muted hover:text-loss"
+                        >
+                          Borrar
+                        </button>
+                      </form>
                     </td>
                   </tr>
                 ))}
