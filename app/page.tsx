@@ -1,7 +1,10 @@
 import { supabaseAdmin } from "@/lib/supabase";
 import { logout } from "@/app/login/actions";
+import { actualizarPreciosManual } from "@/lib/actions";
 import Link from "next/link";
 import HistoricoChart from "./HistoricoChart";
+import PanelMercado from "./PanelMercado";
+import { getPreciosMercado } from "@/lib/mercado";
 
 async function getResumen() {
   const { data: snapshots } = await supabaseAdmin
@@ -52,6 +55,7 @@ function Cifra({
 
 export default async function DashboardPage() {
   const { ultimoSnapshot, numOperaciones, historico } = await getResumen();
+  const preciosMercado = await getPreciosMercado();
   const sinDatos = numOperaciones === 0;
 
   return (
@@ -79,6 +83,10 @@ export default async function DashboardPage() {
         </form>
       </header>
 
+      <div className="px-8 pt-8">
+        <PanelMercado precios={preciosMercado} />
+      </div>
+
       <div className="px-8 py-8 grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8">
         <section className="space-y-8">
           {sinDatos ? (
@@ -103,9 +111,19 @@ export default async function DashboardPage() {
           )}
 
           <div className="bg-surface border border-border rounded-lg p-6">
-            <h2 className="font-display text-sm uppercase tracking-wide text-muted mb-4">
-              Histórico de cartera
-            </h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-display text-sm uppercase tracking-wide text-muted">
+                Histórico de cartera
+              </h2>
+              <form action={actualizarPreciosManual}>
+                <button
+                  type="submit"
+                  className="text-xs text-accentlight hover:text-ink border border-border rounded px-3 py-1"
+                >
+                  Actualizar precios
+                </button>
+              </form>
+            </div>
             <HistoricoChart datos={historico} />
           </div>
         </section>
